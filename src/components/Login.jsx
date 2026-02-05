@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-function Login({ onLogin }) {
-    const [email, setEmail] = useState('');
+function Login({ onLogin, onSwitchToSignup }) {
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -11,23 +11,25 @@ function Login({ onLogin }) {
         setError('');
 
         // Basic validation
-        if (!email || !password) {
+        if (!username || !password) {
             setError('Please fill in all fields');
-            return;
-        }
-
-        if (!email.includes('@')) {
-            setError('Please enter a valid email address');
             return;
         }
 
         setIsLoading(true);
 
-        // Simulate API call
+        // Check user in localStorage
         setTimeout(() => {
-            setIsLoading(false);
-            // For demo purposes, any login works
-            onLogin({ email, name: email.split('@')[0] });
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (user) {
+                setIsLoading(false);
+                onLogin(user);
+            } else {
+                setIsLoading(false);
+                setError('Invalid username or password');
+            }
         }, 1000);
     };
 
@@ -40,17 +42,15 @@ function Login({ onLogin }) {
                 </div>
 
                 <form className="login-form" onSubmit={handleSubmit}>
-                    {error && <div className="error-message">{error}</div>}
-
                     <div className="form-group">
-                        <label htmlFor="email">Email Address</label>
+                        <label htmlFor="username">Username</label>
                         <input
-                            type="email"
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Enter your email"
-                            autoComplete="email"
+                            type="text"
+                            id="username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="Enter your username"
+                            autoComplete="username"
                         />
                     </div>
 
@@ -66,6 +66,8 @@ function Login({ onLogin }) {
                         />
                     </div>
 
+                    {error && <div className="error-message">{error}</div>}
+
                     <button
                         type="submit"
                         className="submit-btn"
@@ -74,6 +76,17 @@ function Login({ onLogin }) {
                         {isLoading ? 'Signing in...' : 'Sign In'}
                     </button>
                 </form>
+
+                <div className="auth-switch">
+                    <p>Don't have an account?</p>
+                    <button
+                        type="button"
+                        className="switch-btn"
+                        onClick={onSwitchToSignup}
+                    >
+                        Sign Up
+                    </button>
+                </div>
             </div>
         </div>
     );
