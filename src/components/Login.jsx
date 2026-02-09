@@ -1,14 +1,25 @@
 import { useState } from 'react';
 
+const MAX_LENGTH = 100;
+
 function Login({ onLogin, onSwitchToSignup }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
+    // Check if field exceeds max length
+    const isOverLimit = (value) => value.length > MAX_LENGTH;
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        // Check max length validation
+        if (isOverLimit(username) || isOverLimit(password)) {
+            setError('Field values must not exceed 100 characters');
+            return;
+        }
 
         // Basic validation
         if (!username || !password) {
@@ -42,7 +53,7 @@ function Login({ onLogin, onSwitchToSignup }) {
                 </div>
 
                 <form className="login-form" onSubmit={handleSubmit}>
-                    <div className="form-group">
+                    <div className={`form-group ${isOverLimit(username) ? 'field-error' : ''}`}>
                         <label htmlFor="username">Username</label>
                         <input
                             type="text"
@@ -51,10 +62,14 @@ function Login({ onLogin, onSwitchToSignup }) {
                             onChange={(e) => setUsername(e.target.value)}
                             placeholder="Enter your username"
                             autoComplete="username"
+                            maxLength={101}
                         />
+                        {isOverLimit(username) && (
+                            <span className="field-error-text">Maximum 100 characters allowed</span>
+                        )}
                     </div>
 
-                    <div className="form-group">
+                    <div className={`form-group ${isOverLimit(password) ? 'field-error' : ''}`}>
                         <label htmlFor="password">Password</label>
                         <input
                             type="password"
@@ -63,7 +78,11 @@ function Login({ onLogin, onSwitchToSignup }) {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Enter your password"
                             autoComplete="current-password"
+                            maxLength={101}
                         />
+                        {isOverLimit(password) && (
+                            <span className="field-error-text">Maximum 100 characters allowed</span>
+                        )}
                     </div>
 
                     {error && <div className="error-message">{error}</div>}
@@ -71,7 +90,7 @@ function Login({ onLogin, onSwitchToSignup }) {
                     <button
                         type="submit"
                         className="submit-btn"
-                        disabled={isLoading}
+                        disabled={isLoading || isOverLimit(username) || isOverLimit(password)}
                     >
                         {isLoading ? 'Signing in...' : 'Sign In'}
                     </button>

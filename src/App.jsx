@@ -35,6 +35,20 @@ function App() {
         }
     };
 
+    const handleUpdateEmail = (newEmail) => {
+        // Update user in state
+        const updatedUser = { ...user, email: newEmail };
+        setUser(updatedUser);
+
+        // Update user in localStorage
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const userIndex = users.findIndex(u => u.username === user.username);
+        if (userIndex !== -1) {
+            users[userIndex].email = newEmail;
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+    };
+
     const switchToSignup = () => {
         setIsLoginView(false);
     };
@@ -51,6 +65,7 @@ function App() {
                     user={user}
                     onLogout={handleLogout}
                     onUpdatePassword={handleUpdatePassword}
+                    onUpdateEmail={handleUpdateEmail}
                 />
             ) : isLoginView ? (
                 <Login onLogin={handleLogin} onSwitchToSignup={switchToSignup} />
