@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 const MAX_LENGTH = 100;
 
-function Dashboard({ user, onLogout, onUpdatePassword, onUpdateEmail }) {
+function Dashboard({ user, onLogout, onUpdatePassword, onUpdateEmail, onNavigateToItems }) {
     const [showEditPassword, setShowEditPassword] = useState(false);
     const [passwords, setPasswords] = useState({
         currentPassword: '',
@@ -127,12 +127,20 @@ function Dashboard({ user, onLogout, onUpdatePassword, onUpdateEmail }) {
                         Welcome to <strong>{user.company}</strong>'s dashboard.
                         You've successfully logged in as <strong>@{user.email}</strong>.
                     </p>
-                    <button
-                        className="edit-password-btn"
-                        onClick={() => setShowEditPassword(true)}
-                    >
-                        🔐 Change Password
-                    </button>
+                    <div className="dashboard-actions" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem' }}>
+                        <button
+                            className="edit-password-btn"
+                            onClick={() => setShowEditPassword(true)}
+                        >
+                            🔐 Change Password
+                        </button>
+                        <button
+                            className="browse-items-btn"
+                            onClick={onNavigateToItems}
+                        >
+                            🛒 Browse Items
+                        </button>
+                    </div>
                 </div>
 
                 {/* Password Edit Modal */}
