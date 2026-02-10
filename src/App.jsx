@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import ThemeToggle from './components/ThemeToggle';
 import Login from './components/Login';
 import Signup from './components/Signup';
@@ -10,6 +11,25 @@ function App() {
     const [isLoginView, setIsLoginView] = useState(true);
     const [currentScreen, setCurrentScreen] = useState('dashboard'); // 'dashboard' or 'items'
     const [cart, setCart] = useState([]);
+    const isAuthenticated = useIsAuthenticated();
+    const { instance } = useMsal();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            const accounts = instance.getAllAccounts();
+            if (accounts.length > 0) {
+                const account = accounts[0];
+                const msalUser = {
+                    username: account.username,
+                    name: account.name,
+                    email: account.username, // mapping username to email as fallback
+                    password: '' // MSAL users don't have a local password
+                };
+                setUser(msalUser);
+                setCurrentScreen('dashboard');
+            }
+        }
+    }, [isAuthenticated, instance]);
 
     const handleLogin = (userData) => {
         setUser(userData);
@@ -22,6 +42,11 @@ function App() {
     };
 
     const handleLogout = () => {
+        if (isAuthenticated) {
+            instance.logoutPopup().catch(e => {
+                console.error(e);
+            });
+        }
         setUser(null);
         setIsLoginView(true);
         setCart([]);
