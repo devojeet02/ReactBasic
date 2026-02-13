@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 const MAX_LENGTH = 100;
 
-function Dashboard({ user, onLogout, onUpdatePassword, onUpdateEmail, onNavigateToItems }) {
+function Dashboard({ user, onUpdatePassword, onUpdateEmail, onNavigateToItems }) {
     const [showEditPassword, setShowEditPassword] = useState(false);
     const [passwords, setPasswords] = useState({
         currentPassword: '',
@@ -117,9 +117,6 @@ function Dashboard({ user, onLogout, onUpdatePassword, onUpdateEmail, onNavigate
                     <h1>Dashboard</h1>
                     <span className="company-badge">{user.company}</span>
                 </div>
-                <button className="logout-btn" onClick={onLogout}>
-                    Sign Out
-                </button>
             </header>
 
             <main className="dashboard-content">

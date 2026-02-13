@@ -135,13 +135,15 @@ function App() {
 
     return (
         <>
-            <ThemeToggle />
             {!user ? (
-                isLoginView ? (
-                    <Login onLogin={handleLogin} onSwitchToSignup={switchToSignup} />
-                ) : (
-                    <Signup onSignup={handleSignup} onSwitchToLogin={switchToLogin} />
-                )
+                <>
+                    <ThemeToggle />
+                    {isLoginView ? (
+                        <Login onLogin={handleLogin} onSwitchToSignup={switchToSignup} />
+                    ) : (
+                        <Signup onSignup={handleSignup} onSwitchToLogin={switchToLogin} />
+                    )}
+                </>
             ) : (
                 <>
                     <TopNav
@@ -160,7 +162,6 @@ function App() {
                         {currentScreen === 'dashboard' ? (
                             <Dashboard
                                 user={user}
-                                onLogout={handleLogout}
                                 onUpdatePassword={handleUpdatePassword}
                                 onUpdateEmail={handleUpdateEmail}
                                 onNavigateToItems={() => setCurrentScreen('items')}

@@ -1,4 +1,21 @@
+import { useState, useEffect } from 'react';
+
 function TopNav({ onMenuToggle, user, onLogout }) {
+    const [theme, setTheme] = useState('light');
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }, []);
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+    };
+
     return (
         <nav className="top-navbar">
             <div className="top-navbar-content">
@@ -19,6 +36,13 @@ function TopNav({ onMenuToggle, user, onLogout }) {
                 </div>
 
                 <div className="top-navbar-actions">
+                    <button
+                        className="theme-toggle-nav"
+                        onClick={toggleTheme}
+                        aria-label="Toggle theme"
+                    >
+                        {theme === 'light' ? '🌙' : '☀️'}
+                    </button>
                     <div className="user-info">
                         <span className="user-name">{user.name}</span>
                         <span className="user-company">{user.company}</span>
