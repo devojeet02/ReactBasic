@@ -1,4 +1,4 @@
-function SideNav({ currentScreen, onNavigate, cartItemCount, isExpanded, onToggle }) {
+function SideNav({ currentScreen, onNavigate, cartItemCount, isExpanded, onToggle, onLogout }) {
     const navItems = [
         { id: 'dashboard', label: 'Dashboard', icon: '🏠' },
         { id: 'items', label: 'Browse Items', icon: '🛍️' },
@@ -21,25 +21,39 @@ function SideNav({ currentScreen, onNavigate, cartItemCount, isExpanded, onToggl
                         </svg>
                     </button>
                 </div>
-                <ul className="sidenav-list">
-                    {navItems.map(item => (
-                        <li key={item.id}>
-                            <button
-                                className={`sidenav-item ${currentScreen === item.id ? 'active' : ''}`}
-                                onClick={() => {
-                                    onNavigate(item.id);
-                                    onToggle();
-                                }}
-                            >
-                                <span className="sidenav-icon">{item.icon}</span>
-                                <span className="sidenav-label">{item.label}</span>
-                                {item.badge > 0 && (
-                                    <span className="sidenav-badge">{item.badge}</span>
-                                )}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
+                <div className="sidenav-content">
+                    <ul className="sidenav-list">
+                        {navItems.map(item => (
+                            <li key={item.id}>
+                                <button
+                                    className={`sidenav-item ${currentScreen === item.id ? 'active' : ''}`}
+                                    onClick={() => {
+                                        onNavigate(item.id);
+                                        onToggle();
+                                    }}
+                                >
+                                    <span className="sidenav-icon">{item.icon}</span>
+                                    <span className="sidenav-label">{item.label}</span>
+                                    {item.badge > 0 && (
+                                        <span className="sidenav-badge">{item.badge}</span>
+                                    )}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="sidenav-footer">
+                    <button className="sidenav-item logout-vibrant" onClick={onLogout}>
+                        <span className="sidenav-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </span>
+                        <span className="sidenav-label">Sign Out</span>
+                    </button>
+                </div>
             </nav>
 
             {isExpanded && (

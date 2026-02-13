@@ -8,6 +8,7 @@ import ItemsScreen from './components/ItemsScreen';
 import SideNav from './components/SideNav';
 import FullCartScreen from './components/FullCartScreen';
 import TopNav from './components/TopNav';
+import Settings from './components/Settings';
 
 function App() {
     const [user, setUser] = useState(null);
@@ -87,6 +88,17 @@ function App() {
         }
     };
 
+    const handleUpdateUser = (updatedUserData) => {
+        setUser(updatedUserData);
+        // Sync with localStorage for local users
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const userIndex = users.findIndex(u => u.username === user.username);
+        if (userIndex !== -1) {
+            users[userIndex] = { ...users[userIndex], ...updatedUserData };
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+    };
+
     // Cart Handlers
     const addToCart = (product) => {
         setCart(prevCart => {
@@ -150,6 +162,7 @@ function App() {
                         onMenuToggle={toggleSideNav}
                         user={user}
                         onLogout={handleLogout}
+                        onNavigate={setCurrentScreen}
                     />
                     <SideNav
                         currentScreen={currentScreen}
@@ -157,6 +170,7 @@ function App() {
                         cartItemCount={totalCartItems}
                         isExpanded={isSideNavExpanded}
                         onToggle={toggleSideNav}
+                        onLogout={handleLogout}
                     />
                     <div className="main-content">
                         {currentScreen === 'dashboard' ? (
@@ -175,13 +189,19 @@ function App() {
                                 onUpdateQuantity={updateQuantity}
                                 onCheckout={handleCheckout}
                             />
-                        ) : (
+                        ) : currentScreen === 'cart' ? (
                             <FullCartScreen
                                 cart={cart}
                                 onRemove={removeFromCart}
                                 onUpdateQuantity={updateQuantity}
                                 onCheckout={handleCheckout}
                                 onAddToCart={addToCart}
+                            />
+                        ) : (
+                            <Settings
+                                user={user}
+                                onUpdateUser={handleUpdateUser}
+                                onBack={() => setCurrentScreen('dashboard')}
                             />
                         )}
                     </div>
