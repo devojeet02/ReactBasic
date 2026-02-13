@@ -6,6 +6,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a React application with authentication, a dashboard, and a shopping interface. It uses Vite as the build tool and stores user data in localStorage (no backend).
 
+## Authentication Methods
+
+This application supports **dual authentication**:
+
+1. **Local Authentication**: Username/password stored in localStorage (original system)
+2. **Microsoft Authentication (MSAL)**: Azure AD authentication via popup flow
+
+### MSAL Configuration
+
+- **Auth files**:
+  - `src/auth/auth-config.ts` - MSAL configuration (clientId, authority, cache settings)
+  - `src/auth/hooks/auth-provider.tsx` - MsalProvider wrapper with event handling
+  - `src/main.jsx` - Wraps App with AuthProvider
+
+- **MSAL Flow**:
+  1. User clicks "Sign in with Microsoft" in Login component
+  2. `loginPopup()` opens Azure AD authentication
+  3. On success, `EventType.LOGIN_SUCCESS` triggers, sets active account, and reloads page
+  4. App.jsx detects authentication via `useIsAuthenticated()` and auto-creates user object
+  5. MSAL users have empty password field (Azure handles auth)
+
+- **Configuration Notes**:
+  - Cache location: `sessionStorage` (not localStorage)
+  - Redirect URIs: `/` for both login and logout
+  - Login request uses empty scopes array (basic authentication only)
+
 ## Development Commands
 
 ```bash
@@ -19,6 +45,18 @@ npm run build
 npm run preview
 ```
 
+## Dependencies
+
+**Core:**
+- React 19.2.4 + React DOM
+- Vite 5.0.0 (build tool)
+
+**Authentication:**
+- `@azure/msal-browser` ^3.30.0
+- `@azure/msal-react` ^2.2.0
+
+**Note**: MSAL packages require the app to be served from a valid URL (not file://). Use `npm run dev` for development.
+
 ## Architecture
 
 ### State Management Flow
@@ -27,7 +65,9 @@ The app uses a single-level state architecture managed in `App.jsx`:
 
 - **User authentication state**: Managed via `user` state and `isLoginView` toggle
   - `user` object contains: `{ username, password, email, name, company }`
-  - User data is persisted in `localStorage` under the `users` key as an array
+  - **Dual authentication**: localStorage-based users OR MSAL-authenticated users
+  - MSAL users: `useIsAuthenticated()` hook detects auth state, user object created from `instance.getAllAccounts()[0]`
+  - User data is persisted in `localStorage` under the `users` key as an array (local auth only)
 
 - **Navigation state**: `currentScreen` toggles between `'dashboard'` and `'items'`
 
@@ -75,6 +115,13 @@ All text inputs have a **100-character maximum** enforced at the UI level:
 - Submit buttons disabled when any field exceeds limit
 - Applies to: username, password, email, and password change fields
 
+### TypeScript Usage
+
+The project uses both JavaScript (.jsx) and TypeScript (.tsx, .ts) files:
+- **TypeScript files**: Authentication module (`src/auth/`)
+- **JavaScript files**: All React components and main app logic
+- No strict type checking - TypeScript used selectively for MSAL integration
+
 ### Styling
 
 - Dark mode support via CSS custom properties (`:root` and `[data-theme="dark"]`)
@@ -84,7 +131,11 @@ All text inputs have a **100-character maximum** enforced at the UI level:
 
 ## Key Files
 
-- `src/App.jsx` - Main application logic and state management
+- `src/App.jsx` - Main application logic and state management, MSAL hooks integration
+- `src/main.jsx` - Root entry point, wraps App with MSAL AuthProvider
+- `src/auth/auth-config.ts` - MSAL configuration (clientId, tenant, cache settings)
+- `src/auth/hooks/auth-provider.tsx` - MSAL provider wrapper with login event handling
+- `src/components/Login.jsx` - Dual authentication UI (local + Microsoft button)
 - `src/data/itemsData.js` - Product catalog data (4 categories × 5 items)
 - `src/components/Dashboard.jsx` - User dashboard with password change modal
 - `src/components/ItemsScreen.jsx` - Shopping interface coordinator

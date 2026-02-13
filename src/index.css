@@ -685,3 +685,47 @@ body {
   font-weight: 500;
   color: var(--text-muted);
 }
+
+/* Password Input Wrapper */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  flex: 1;
+  padding-right: 3rem;
+}
+
+/* Password Toggle Button */
+.password-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-speed);
+  border-radius: 4px;
+}
+
+.password-toggle-btn:hover {
+  color: var(--accent-color);
+  background: var(--accent-light);
+}
+
+.password-toggle-btn:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.password-toggle-btn svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
