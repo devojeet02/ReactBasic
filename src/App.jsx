@@ -1,15 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import ThemeToggle from './components/ThemeToggle';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
 import ItemsScreen from './components/ItemsScreen';
+import SideNav from './components/SideNav';
+import FullCartScreen from './components/FullCartScreen';
+import TopNav from './components/TopNav';
 
 function App() {
     const [user, setUser] = useState(null);
     const [isLoginView, setIsLoginView] = useState(true);
-    const [currentScreen, setCurrentScreen] = useState('dashboard'); // 'dashboard' or 'items'
+    const [currentScreen, setCurrentScreen] = useState('dashboard'); // 'dashboard', 'items', or 'cart'
     const [cart, setCart] = useState([]);
+    const [isSideNavExpanded, setIsSideNavExpanded] = useState(false);
+    const isAuthenticated = useIsAuthenticated();
+    const { instance } = useMsal();
+
+    // Calculate total cart items for badge
+    const totalCartItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            const accounts = instance.getAllAccounts();
+            if (accounts.length > 0) {
+                const account = accounts[0];
+                const msalUser = {
+                    username: account.username,
+                    name: account.name,
+                    email: account.username, // mapping username to email as fallback
+                    password: '' // MSAL users don't have a local password
+                };
+                setUser(msalUser);
+                setCurrentScreen('dashboard');
+            }
+        }
+    }, [isAuthenticated, instance]);
 
     const handleLogin = (userData) => {
         setUser(userData);
@@ -22,10 +49,20 @@ function App() {
     };
 
     const handleLogout = () => {
+        if (isAuthenticated) {
+            instance.logoutPopup().catch(e => {
+                console.error(e);
+            });
+        }
         setUser(null);
         setIsLoginView(true);
         setCart([]);
         setCurrentScreen('dashboard');
+        setIsSideNavExpanded(false);
+    };
+
+    const toggleSideNav = () => {
+        setIsSideNavExpanded(!isSideNavExpanded);
     };
 
     const handleUpdatePassword = (newPassword) => {
@@ -105,23 +142,49 @@ function App() {
                 ) : (
                     <Signup onSignup={handleSignup} onSwitchToLogin={switchToLogin} />
                 )
-            ) : currentScreen === 'dashboard' ? (
-                <Dashboard
-                    user={user}
-                    onLogout={handleLogout}
-                    onUpdatePassword={handleUpdatePassword}
-                    onUpdateEmail={handleUpdateEmail}
-                    onNavigateToItems={() => setCurrentScreen('items')}
-                />
             ) : (
-                <ItemsScreen
-                    onBack={() => setCurrentScreen('dashboard')}
-                    cart={cart}
-                    onAddToCart={addToCart}
-                    onRemoveFromCart={removeFromCart}
-                    onUpdateQuantity={updateQuantity}
-                    onCheckout={handleCheckout}
-                />
+                <>
+                    <TopNav
+                        onMenuToggle={toggleSideNav}
+                        user={user}
+                        onLogout={handleLogout}
+                    />
+                    <SideNav
+                        currentScreen={currentScreen}
+                        onNavigate={setCurrentScreen}
+                        cartItemCount={totalCartItems}
+                        isExpanded={isSideNavExpanded}
+                        onToggle={toggleSideNav}
+                    />
+                    <div className="main-content">
+                        {currentScreen === 'dashboard' ? (
+                            <Dashboard
+                                user={user}
+                                onLogout={handleLogout}
+                                onUpdatePassword={handleUpdatePassword}
+                                onUpdateEmail={handleUpdateEmail}
+                                onNavigateToItems={() => setCurrentScreen('items')}
+                            />
+                        ) : currentScreen === 'items' ? (
+                            <ItemsScreen
+                                onBack={() => setCurrentScreen('dashboard')}
+                                cart={cart}
+                                onAddToCart={addToCart}
+                                onRemoveFromCart={removeFromCart}
+                                onUpdateQuantity={updateQuantity}
+                                onCheckout={handleCheckout}
+                            />
+                        ) : (
+                            <FullCartScreen
+                                cart={cart}
+                                onRemove={removeFromCart}
+                                onUpdateQuantity={updateQuantity}
+                                onCheckout={handleCheckout}
+                                onAddToCart={addToCart}
+                            />
+                        )}
+                    </div>
+                </>
             )}
         </>
     );
