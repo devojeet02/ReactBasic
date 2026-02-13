@@ -2,11 +2,23 @@ import { useState, useEffect } from 'react';
 import '../styles/Settings.css';
 
 function Settings({ user, onUpdateUser, onBack }) {
+    const avatars = [
+        { id: 'initials', label: 'Initials', icon: null },
+        { id: 'human1', label: 'Classic', icon: '👨‍💼' },
+        { id: 'human2', label: 'Creative', icon: '👩‍🎨' },
+        { id: 'animal1', label: 'Panda', icon: '🐼' },
+        { id: 'animal2', label: 'Fox', icon: '🦊' },
+        { id: 'object1', label: 'Robot', icon: '🤖' },
+        { id: 'object2', label: 'Rocket', icon: '🚀' },
+        { id: 'abstract', label: 'Zen', icon: '🧘' }
+    ];
+
     const [activeSection, setActiveSection] = useState('profile');
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || '',
         company: user?.company || '',
+        avatar: user?.avatar || 'initials',
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
@@ -30,6 +42,10 @@ function Settings({ user, onUpdateUser, onBack }) {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleAvatarSelect = (avatarId) => {
+        setFormData(prev => ({ ...prev, avatar: avatarId }));
+    };
+
     const handlePreferenceChange = (key) => {
         setPreferences(prev => ({ ...prev, [key]: !prev[key] }));
     };
@@ -40,7 +56,8 @@ function Settings({ user, onUpdateUser, onBack }) {
             ...user,
             name: formData.name,
             email: formData.email,
-            company: formData.company
+            company: formData.company,
+            avatar: formData.avatar
         });
         setMessage({ type: 'success', text: 'Profile updated successfully!' });
     };
@@ -57,48 +74,87 @@ function Settings({ user, onUpdateUser, onBack }) {
         setFormData(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
     };
 
-    const renderProfile = () => (
-        <div className="settings-section">
-            <h2 className="settings-section-title">Personal Details</h2>
-            <form className="settings-form" onSubmit={handleSaveProfile}>
-                <div className="form-group">
-                    <label>Full Name</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="Your full name"
-                    />
-                </div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label>Email Address</label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            placeholder="Email address"
-                        />
+    const getInitials = (name) => {
+        return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'U';
+    };
+
+    const renderProfile = () => {
+        const selectedAvatarIcon = avatars.find(a => a.id === formData.avatar)?.icon;
+
+        return (
+            <div className="settings-section">
+                <h2 className="settings-section-title">Personal Details</h2>
+
+                <div className="avatar-selection-container">
+                    <div className="avatar-main-preview">
+                        {formData.avatar === 'initials' ? (
+                            <div className="preview-initials">{getInitials(formData.name)}</div>
+                        ) : (
+                            <div className="preview-icon">{selectedAvatarIcon}</div>
+                        )}
                     </div>
+                    <div className="avatar-picker-grid">
+                        <p className="avatar-picker-label">Choose your profile appearance</p>
+                        <div className="avatar-options">
+                            {avatars.map(avatar => (
+                                <button
+                                    key={avatar.id}
+                                    type="button"
+                                    className={`avatar-option-btn ${formData.avatar === avatar.id ? 'selected' : ''}`}
+                                    onClick={() => handleAvatarSelect(avatar.id)}
+                                    title={avatar.label}
+                                >
+                                    {avatar.id === 'initials' ? (
+                                        <span className="option-initials">{getInitials(formData.name)}</span>
+                                    ) : (
+                                        <span className="option-icon">{avatar.icon}</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <form className="settings-form" onSubmit={handleSaveProfile}>
                     <div className="form-group">
-                        <label>Company</label>
+                        <label>Full Name</label>
                         <input
                             type="text"
-                            name="company"
-                            value={formData.company}
+                            name="name"
+                            value={formData.name}
                             onChange={handleInputChange}
-                            placeholder="Company name"
+                            placeholder="Your full name"
                         />
                     </div>
-                </div>
-                <div className="settings-actions">
-                    <button type="submit" className="save-btn">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    );
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label>Email Address</label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                placeholder="Email address"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Company</label>
+                            <input
+                                type="text"
+                                name="company"
+                                value={formData.company}
+                                onChange={handleInputChange}
+                                placeholder="Company name"
+                            />
+                        </div>
+                    </div>
+                    <div className="settings-actions">
+                        <button type="submit" className="save-btn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        );
+    };
 
     const renderSecurity = () => (
         <div className="settings-section">

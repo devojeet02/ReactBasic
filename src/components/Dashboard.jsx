@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Chatbot from './Chatbot';
 
 const MAX_LENGTH = 100;
 
@@ -328,6 +329,7 @@ function Dashboard({ user, onUpdatePassword, onUpdateEmail, onNavigateToItems })
                     </div>
                 </div>
             </main>
+            <Chatbot />
         </div>
     );
 }

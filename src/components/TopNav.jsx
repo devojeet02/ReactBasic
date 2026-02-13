@@ -32,6 +32,18 @@ function TopNav({ onMenuToggle, user, onLogout, onNavigate }) {
         return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'U';
     };
 
+    const getAvatarDisplay = (targetUser, className) => {
+        const avatars = {
+            'human1': '👨‍💼', 'human2': '👩‍🎨', 'animal1': '🐼', 'animal2': '🦊',
+            'object1': '🤖', 'object2': '🚀', 'abstract': '🧘'
+        };
+
+        if (targetUser.avatar && targetUser.avatar !== 'initials') {
+            return <span className={className}>{avatars[targetUser.avatar]}</span>;
+        }
+        return <span className={className}>{getInitials(targetUser.name)}</span>;
+    };
+
     return (
         <nav className="top-navbar">
             <div className="top-navbar-content">
@@ -66,14 +78,14 @@ function TopNav({ onMenuToggle, user, onLogout, onNavigate }) {
                             onClick={() => setIsProfileOpen(!isProfileOpen)}
                             aria-label="User profile"
                         >
-                            <span className="profile-initials">{getInitials(user.name)}</span>
+                            {getAvatarDisplay(user, user.avatar && user.avatar !== 'initials' ? "profile-icon-nav" : "profile-initials")}
                         </button>
 
                         {isProfileOpen && (
                             <div className="profile-dropdown">
                                 <div className="dropdown-header">
                                     <div className="dropdown-user-avatar">
-                                        {getInitials(user.name)}
+                                        {getAvatarDisplay(user, user.avatar && user.avatar !== 'initials' ? "dropdown-icon-img" : "")}
                                     </div>
                                     <div className="dropdown-user-info">
                                         <span className="dropdown-user-name">{user.name}</span>

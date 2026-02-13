@@ -55,6 +55,29 @@ body {
   line-height: 1.6;
 }
 
+/* ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-primary);
+} */
+
 #root {
   min-height: 100vh;
 }
@@ -855,18 +878,24 @@ body {
 .profile-toggle-btn {
   width: 44px;
   height: 44px;
-  background: var(--accent-color);
-  color: white;
-  border: none;
+  background: var(--accent-light);
+  color: var(--accent-color);
+  border: 1px solid var(--border-color);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   transition: all var(--transition-speed);
   box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .profile-toggle-btn {
+  background: var(--accent-color);
+  color: white;
+  border: none;
 }
 
 .profile-toggle-btn:hover {
